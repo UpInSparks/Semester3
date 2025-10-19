@@ -1,0 +1,153 @@
+#######################################
+Dario Engelking
+sheet-search aufgabenblatt KI
+
+Search.01 Problemformalisierung, Zustandsraum
+
+1. Formalisierung 
+Start zustand: Alle Elben, Orks und das Pferd sind Rechts
+End zustand: Alle Elben, Orks und das Pferd sind Links.
+
+Zustände:
+(Elben_links, Orks_links, Pferd) mit Elben und Orks = {0 bis 3}, Pferd = {Links oder Rechts}
+
+Aktionen: 
+Für eine Aktion muss immer das Pferd in bewegung sein.
+Die Möglichen Aktionen lauten also:
+(1 Elbe) (2 Elben) (1 Ork) (2 Orks) (1 Elbe und 1 Ork)
+Diese Optionen sind möglich in beide richtungen unter der bedingung das die 
+Seite von der aus transportiert wird auch genügend Elben oder Orks zu verfügung hat.
+
+2. Skizzierung des Graphes
+
+Siehe ElbOrk.svg
+
+Search.02 Suchverfahren
+
+1.
+Tiefensuche
+- Frankfurt nach Würzburg
+  Würzburg nach Erfurt
+  Erfurt zurück nach Erfurt (backtracking)
+  Würzburg nach Nürnberg
+  Nürnberg nach Stuttgart
+  Stuttgart zurück nach Nürnberg (backtracking)
+  Nürnberg nach München
+
+Kosten = 1225km
+
+Breitensuche
+- Schritt 1: Mannheim,Würzburg,Kassel
+  Schritt 2: Mannheim nach Karlsruhe, Würzburg nach Nürnberg, Kassel nach München
+
+  Der Weg mit wenigsten schritten lautet:
+  Frankfurt -> Kassel -> München
+Kosten = 675km
+
+A*
+- f(n) = g(n) + h(n)
+ g(n) bisherige Kosten
+ h(n) geschätzte Restkosten
+ f(n) wird der kleinste Wert von Optionen gewählt
+
+- Schritt 1
+Mannheim f=285
+Würzburg f=387
+Kassel f=633
+
+- Schritt 2 Mannheim
+Karlsruhe f=175
+Würzburg f=387
+Kassel f=633
+
+- Schritt 3 Karlsruhe
+Augsburg f=415
+Würzburg f=387
+Kassel f=633
+
+- Schritt 4 Wüzburg
+Augsburg f=415
+Kassel f=633
+Nürnberg f=857
+
+- Schritt 5 Augsburg
+München f=499 (Ziel)
+Kassel f=633
+Nürnberg f= 857
+
+Endgültiger Pfad lautet
+Frankfurt -> Mannheim -> Karlsruhe -> Augsburg -> München 
+kosten = 499km
+
+Vergleich
+-Tiefensuche
+Einträge: Gering
+Speicher: aktueller Pfad und deren Zweige -> Speicherarm
+Durchläufe: Hängt vom Suchpfad ab
+
+-Breitensuche
+Einträge: Durchschnitt
+Speicher: Alle Knoten einer Ebene -> Veil Speicherbedarf
+Durchläufe: erreichbare Knoten bis zum Ziel via minimale Schritte
+
+-A*
+Einträge: Durchschnitt bis Viel
+Speicher: Alle offenen Knoten mit f-Werten -> potentiell Groß
+Durchläufe: Nur optimale Knoten(Heuristik)
+
+2. Restkostenabschätzungen
+Die gegeben zahlen sind in mehreren Fällen unplausibel und kommen aus dem nichts, sie sind Inkonsistent und 
+Überschätzen an Stellen wie von Nürnburg nach München mit 537km wenn es 167km sind.
+
+Durch die inkorrekten Werte Wird die A* Methode sehr unoptimal.
+
+eine korrigierte Version mit gerundeten sinnvolleren Abschätzungen
+
+Stadt		h(n)
+Frankfurt	300
+Mannheim	260
+Würzburg	220
+Nürnberg	150
+Karlsruhe	250
+Augsburg	60
+Stuttgart	200
+Kassel		350
+Erfurt		300
+München		0
+
+Search.03 Dominanz
+
+Was bedeutet “Eine Heuristik h 1 ( n ) dominiert eine Heuristik h 2 ( n ) ”?
+
+-Eine Heuristik h1(n) dominiert wenn sie bessere Werte als h2(n) liefert.
+
+Wie wirkt sich die Nutzung einer dominierenden Heuristik h 1 ( n ) in A* aus 
+(im Vergleich zur Nutzung einer Heuristik h 2 , die von h 1 dominiert wird)?
+
+-Eine dominierende Heuristik wird effizienter handeln, weil h1(n) 
+im gegensatz zu h2(n) unnötige Schritte sparen wird.
+
+Geben Sie selbstgewählte Beispiele an.
+
+-Routenplanung
+gehen wir davon aus das Ziel ist es so optimal wie möglich von A nach B zu kommen
+eine Heuristik h1(n) würde eine grade Linie nehmen oder Luftlinie, während h2(n) würde manche unnötigen Kurven nehmen
+
+Search.04 Beweis der Optimalität
+
+Beweisen Sie, dass A* in der Tree-Search-Variante bei Nutzung einer zulässigen Heuristik optimal ist.
+
+-eine Zulässige Heuristik beinhält dass die tatsächlichen Restkosten nicht unterschätzt werden
+
+Die Grundfunktion lautet f(n) = g(n) + h(n)
+
+∀n: h(n) ≤ h^*(n) => ∀n: f(n) ≤ g(n) + h^*(n)
+
+f(n) ≤ C^*
+
+-Wenn die Heuristik zulässig ist, überschätzt A* niemals die tatsächlichen Kosten eines Pfads
+
+h(n) = geschätzten Kosten
+h^*(n) = die echten Restkosten
+C^* = Kosten eines optimalen Pfads
+C = Kosten eines Pfades
