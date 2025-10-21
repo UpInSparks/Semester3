@@ -1,0 +1,303 @@
+###############################################
+Blatt 01: Reguläre Sprachen
+
+A1.1 Sprachen von regulären Ausdrücken
+
+a   +   a   ( a   +   b ) ∗   a 
+
+- Die Sprache besteht aus mindestens 2 Buchstaben die mit a beginnen und enden und dazwischen irgendwas aus a und oder b haben.
+  Beispiel: ababa = korrekt
+  	    baa   = falsch
+	    abba  = korrekt
+	    a     = korrekt
+	    ba    = flasch
+
+- L = { a } ∪ { a x a | x ∈ (a + b)* }
+
+A1.2: Bezeichner in Programmiersprachen
+
+###############
+# DEFINIERUNG #
+###############
+
+Startbuchstaben
+V = globale Variable
+v = lokale Variable
+p = Funktion oder Methode (Parameter)
+P = Klassenparameter
+a - z/A - Z = alle anderen Bezeichner (außer V, v, P, p)
+
+- (V|v|p|P|[a-zA-Z&&[^VvPp]])
+
+
+Folgende
+a - z/A - Z/ 0 - 9 / _
+
+_ = darf nicht als letztes sein
+
+mind. 2 Zeichen
+
+- ([a-zA-Z0-9_]*[a-zA-Z0-9])
+
+############################################
+regex
+
+- ^(V|v|p|P|[a-zA-Z&&[^VvPp]])([a-zA-Z0-9_]*[a-zA-Z0-9])$
+
+- Beispiele
+
+bsp. 1 = v1_abc
+
+v = lokale variable
+1_abc = erlaubte Zeichen
+endet mit c = kein "_"
+länge >= 2
+
+bsp. 2 = Peter_67
+
+P = Klassenparameter
+eter_67 = erlaubte Zeichen
+endet in 7 = kein "_"
+länger >= 2
+
+bsp.1 und bsp.2 = erlaubt
+
+###########################################
+DFA
+
+- Siehe Abbildung Compiler 1_2 DFA.svg
+
+bsp.1 = v1_abc
+q0 = v = q1
+q1 = 1 = q2
+q2 = _ = q3
+q3 = a = q2
+q2 = b = q2
+q2 = c = q2
+
+Ende in q2 akzeptiert
+
+bsp.2 = Peter_67
+q0 = P = q1
+q1 = e = q2 
+q2 = t = q2
+q2 = e = q2
+q2 = r = q2
+q2 = _ = q3
+q3 = 6 = q2
+q2 = 7 = q2
+
+Ende in q2 akzeptiert
+
+###########################################
+reguläre Grammatik
+
+- 
+S = Startsymbol (V, v, P, p)
+L = Startzeichen die inkorrekt sind 
+A = für die Länge >= 2
+B = beliebiges Folgezeichen und stellt sicher das es nicht mit _ endet
+U = stellt sicher das nach einem _ noch ein zeichen kommt
+
+S → V A | v A | p A | P A | L A
+
+L → [a–zA–Z \ {V, v, p, P}] A
+
+A → [a–zA–Z0–9] B | _ U  
+
+B → [a–zA–Z0–9] B | _ U | [a–zA–Z0–9]
+
+U → [a–zA–Z0–9] B
+
+
+bsp.1 = v1_abc
+S = v A
+  = v 1 B
+  = v 1 _ U
+  = v 1 _ a B
+  = v 1 _ a b B
+  = v 1 _ a b c
+
+bsp.2 = Peter_67
+S = P A
+  = P e B
+  = P e t B
+  = P e t e B
+  = P e t e r B
+  = P e t e r _ U
+  = P e t e r _ 6 B
+  = P e t e r _ 6 7
+
+A1.3: Gleitkommazahlen in Programmiersprachen
+
+                      | Python                                 | Java                                        |
+| ------------------- | -------------------------------------- | ------------------------------------------- |
+| Ganzzahl            | Pflicht (z. B. "12")                   | Pflicht (z. B. "12")                        |
+| Dezimalpunkt        | Optional, aber nötig für Float-Literal | Optional                                    |
+| Nachkommateil       | Pflicht, wenn Punkt da ist (".34")     | Pflicht, wenn Punkt da ist (".34")          |
+| Exponent            | Optional ("e" oder "E")                | Optional ("e" oder "E")                     |
+| Vorzeichen          | Optional ("+", "-")                    | Optional ("+", "-")                         |
+| Beispiel gültig     | "-1.23e+4"                             | "+3.0E7"                                    |
+| Suffix wie "f", "d" | Nein (nicht erforderlich)              | Ja (optional, z. B. "3.0f", wird ignoriert) |
+
+Eine zahl kann mit einem + oder - beginnen muss es aber nicht.
+Es muss immer eine ganzzahl geben (0 - 9).
+Danach kann ein . folgen mit mindestens einer Ziffer (0 - 9).
+Am Ende kann ein Exponent folgen aus dem Buchstaben e oder E, mit optionalem Vorzeichen (+ oder -) 
+und mindestens einer Ziffer (0 - 9)
+
+Formal:
+[+ | -]? Ziffern ( "." Ziffern )? ( [e | E] [+ | -]? Ziffern )?
+
+###########################################
+Regex
+
+^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$
+
+^ und $ = Start und Ende
+[+-]? = optionales Vorzeichen
+\d+ = mindestens eine Ziffer
+(\.\d+)? = optionaler Dezimalpunkt mit nachkommaziffern
+([eE][+-]?\d+)? = optionaler Exponententeil
+
+bsp.1 = -13.69e+7
+
+- = Vorzeichen  
+13 = Ganzzahlteil  
+.69 = Nachkommateil  
+e+7 = Exponent  
+
+############################################
+DFA
+
+q0 = Start
+qSign = Vorzeichen gelesen
+qInt = Ganzzahlteil
+qDot = Punkt gelesen
+qFrac = Nachkommazahl
+qExpStart = e oder E gelesen
+qExpSign = Exponent-Vorzeichen
+qExpNum = Exponentenzahl
+qInt,qFrac,qExpNum = mögliche Enzustände
+
+bsp.1 = -13.69e+7
+q0 → - → qSign  
+qSign → 1 → qInt  
+qInt → 3 → qInt  
+qInt → . → qDot  
+qDot → 6 → qFrac  
+qFrac → 9 → qFrac  
+qFrac → e → qExpStart  
+qExpStart → + → qExpSign  
+qExpSign → 7 → qExpNum  
+Ende in qExpNum = korrekt
+
+############################################
+Reguläre Grammatik
+
+S = Startsymbol
+I = Ganzzahl
+D = Dezimalteil
+F = Fraktion
+E = Exponentzeichen
+ES = Exponentenvorzeichen
+EN = Exponentenziffern
+
+S → + I | - I | I
+
+I → d I | d D | d E | d  
+D → . d F  
+F → d F | d E | d  
+E → e ES  
+ES → + EN | - EN | EN  
+EN → d EN | d
+
+bsp.1 = -13.69e+7
+S → - I  
+I → 1 I  
+I → 3 D  
+D → . 6 F  
+F → 9 E  
+E → e ES  
+ES → + EN  
+EN → 7  
+
+A1.4: Mailadressen?
+
+( a − z ) + @ ( a − z ) . ( a − z )
+
+#############################################
+Probleme
+
+.(a - z) = wiederholt sich nicht welches heißen würde das nur 1 Buchstabe am ende stehen würde.
+
+es werden keine Sonderzeichen erlaubt
+
+(a - z) = beschreibt nur ein Zeichen
+
+es ist unklar wie viele Zeichen erlaubt sind (keine mindest- höchstlänge)
+
+##################################################
+Lösung
+
+[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+
+
+[a-zA-Z0-9._-]+ = der Teil vor dem @
+erlaubt sind klein/großbuchstaben, Ziffern, Punkt, Unterstrich und Bindestriche
+mit beliebig vielen Wiederholungen
+
+@ = das Trennzeichen und pflichtzeichen in jeder email adresse
+
+[a-zA-Z0-9-]+ = der domainname (z.b. gmail, hsbi)
+erlaubte Zeichen sind klein/großbuchstaben, Ziffern und Bindestriche
+
+(\.[a-zA-Z]{2,})+
+
+\. = ein Punkt, dass \ ist dafür das der Punkt auch dort ist, sonst steht es für beliebiges zeichen
+
+[a-zA-Z]{2,} = erlaubt nur klein/großbuchstaben und muss mindestens 2 Zeichen Lang sein
+
++ = das + am ende ist für die sonderfälle wie z.b. ".co.uk"
+
+
+A1.5: Der zweitletzte Buchstabe
+
+Σ={1,2,3} 
+
+es muss laut der aufgabenstellung das 2. zeichen und das 2. letzte zeichen gespeichert werden
+
+q0 = a1 = q1
+q1 = a2 = q2          ;  a2 merken 
+q2 = a3 = q3          ;  Übergang zu Tracking
+q3 = a4 = q4          ;  [a3, a4] die letzten 2 immer bereit haben
+q4 = a5 = q5          ;  [a4, a5]
+...
+qn = _   prüfen: a2 == a(n−1) ? = akzeptieren
+
+
+bsp.1 = 231132
+
+q0 = 2 = q1
+q1 = 3 = q2          ; zweites Zeichen = 3
+q2 = 1 = q3
+q3 = 1 = q4          ; Fenster = (1, 1)
+q4 = 3 = q5	     ; Fenster = (1, 3)
+q5 = 2 = q6          ; Fenster = (3, 2) → zweitletztes = 3
+
+3 == 3 		     ; akzeptiert
+
+
+A1.6: Sprache einer regulären Grammatik
+
+ S → a A   A → d B   |   b A   |   c A   B → a C   |   b C   |   c A   C → ϵ 
+
+S = a A 		; es beginnt mit "a"
+A = d B | b A | c A	; A kann wiederholend b oder c erzeugen und irgendwann in d B 
+B = a C | b C | c A	; B kann ein a b oder c erzeugen und in C gehen oder zurück zu A gehen
+C = ϵ 			; C ist das Ende 
+
+##############################################
+Regulärer Ausdruck
+
+a ((b|c)* d (a|b|c))*
+
