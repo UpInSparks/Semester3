@@ -12,8 +12,6 @@ a   +   a   ( a   +   b ) ∗   a
 	    a     = korrekt
 	    ba    = flasch
 
-- L = { a } ∪ { a x a | x ∈ (a + b)* }
-
 A1.2: Bezeichner in Programmiersprachen
 
 ###############
